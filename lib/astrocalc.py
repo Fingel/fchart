@@ -15,18 +15,16 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from numarray import *
-
+from numpy import *
 
 def angular_distance(position1, position2):
     """
     Compute angular distance between start and end point.
-    These points are tuples (ra,dec) in radians. Result is also in radians. 
+    These points are tuples (ra,dec) in radians. Result is also in radians.
     """
 
     (start_ra, start_dec) = position1
     (end_ra, end_dec)     = position2
-    
     a = abs(start_ra-end_ra)
     B = abs(0.5*pi - start_dec)
     C = abs(0.5*pi - end_dec)
@@ -155,7 +153,7 @@ def lm_to_radec(lm, fieldcentre):
     returns a tuple (alpha, delta). The formulae are taken from
     Greisen 1983: AIPS Memo 27, 'Non-linear Coordinate Systems in
     AIPS'
-    
+
     """
     (l,m) = lm
     (alpha0, delta0) = fieldcentre
@@ -174,7 +172,7 @@ def radec_to_lm(radec, fieldcentre):
     is a tuple (alpha0, delta0). The routine returns a tuple (l,m).
     The formulae are taken from Greisen 1983: AIPS Memo 27,
     'Non-linear Coordinate Systems in AIPS'
-    
+
     """
     (alpha, delta) = radec
     (alpha0, delta0) = fieldcentre
@@ -192,12 +190,12 @@ def direction_ddec(radec, fieldcentre):
     location in a SIN projection. Positive means that the true north
     is pointing east of the map north.
 
-    ra, dec , ra0 and dec0 are in radians 
+    ra, dec , ra0 and dec0 are in radians
     """
 
     (ra0, dec0) = fieldcentre
     (ra, dec)   = radec
-    
+
     angle = arctan2(-sin(dec)*sin(ra -ra0), cos(dec)*cos(dec0) + sin(dec)*sin(dec0)*cos(ra-ra0))
     return angle
 

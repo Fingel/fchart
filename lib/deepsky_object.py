@@ -14,7 +14,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-from numarray import *
+from numpy import *
 from astrocalc import *
 
 #   0: unknown
@@ -54,7 +54,7 @@ TYPENAME=['Unknown',
 class DeepskyObject:
     def __init__(self, catalog='NGC'):
         """
-        This class has the following fields: 
+        This class has the following fields:
 
         - cat            name of catalog ('NGC', 'IC', 'MEL',...). Not 'M'.
                          If the object is also in the Messier list, the
@@ -66,7 +66,7 @@ class DeepskyObject:
                          components (default: 0)
         - type           integer indicating the type of the object. There
                          are constants defined in this module to help
-                         interpret this field:                         
+                         interpret this field:
                          UNKNOWN         = 0      unknown type
                          G               = 1      galaxy
                          N               = 2      diffuse nebula
@@ -116,7 +116,7 @@ class DeepskyObject:
             cat = 'M'
             name = str(self.messier)
             pass
-        
+
         s += cat.ljust(8)+' '+name.rjust(8)+' '+self.constellation
         s +='  '
         s += str(rah).rjust(3)+str(ram).rjust(3)+str(int(ras+0.5)).rjust(3)
@@ -127,7 +127,7 @@ class DeepskyObject:
             s += '-'
             pass
         s += str(decd).rjust(2)+str(decm).rjust(3)+str(int(decs+0.5)).rjust(3)
-        if self.mag > -90: 
+        if self.mag > -90:
             s += ' '+str(self.mag).rjust(6)+' '
         else:
             s += '        '
@@ -142,9 +142,9 @@ class DeepskyObject:
         else:
             s += '      '
             pass
-        
+
         s += ' '+TYPENAME[self.type].ljust(8)
-        
+
         return s
 
     pass

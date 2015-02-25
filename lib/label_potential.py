@@ -1,4 +1,4 @@
-from numarray import *
+from numpy import *
 
 
 class LabelPotential:
@@ -43,7 +43,7 @@ class LabelPotential:
         value = 0.0
         ss = sum(self.sizes)
         rf = ((x**2+y**2)**0.5 - self.fieldradius)**-3
-        
+
         r2 = (self.positions[:,0]-x)**2 + (self.positions[:,1]-y)**2
         sr = (r2+0.1)**(-1)
         p = self.sizes*sr

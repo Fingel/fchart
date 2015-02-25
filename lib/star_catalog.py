@@ -14,7 +14,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-from numarray import *
+from numpy import *
 import os
 import sys
 from fchart.astrocalc import *
@@ -47,7 +47,7 @@ class TychoIndex:
         lines = f.readlines()
         f.close()
 
-        
+
         for i in range(len(lines)):
             l = lines[i]
             linesplit = l.split('|')
@@ -76,7 +76,7 @@ class TychoIndex:
             self.first_record[i]    = self.index_list[i].first_record
             pass
         pass # end __init__
-    
+
     pass
 
 
@@ -86,7 +86,7 @@ class TychoIndex:
 class StarCatalog:
 
     def __init__(self, filename='', indexfilename=''):
-        self.catalog = zeros((0,3),type=Float32)
+        self.catalog = zeros((0,3),dtype=float32)
 
         if filename != '':
             print str(self.read_catalog(filename))+' stars loaded.'
@@ -100,18 +100,18 @@ class StarCatalog:
         """
         Reads a starcatalog from disc. Format: binary file. One record
         contains:
-        
+
         32 bit float: ra in radians
         32 bit float: dec in radians
         32 bit float: magnitude
 
         These floats should be stored most significant byte first (big-endian)
-        
+
         """
         num_bytes    = os.path.getsize(filename)
         num_records  = num_bytes/12 # 4 bytes times 3 floats
         # read from file using numarray function
-        self.catalog = fromfile(filename, Float32, (num_records,3))
+        self.catalog = fromfile(filename, float32).reshape((num_records, 3))
         if sys.byteorder == 'little':
             self.catalog.byteswap()
             pass
@@ -129,7 +129,7 @@ class StarCatalog:
         """
         stars_in_catalog = self.catalog.shape[0]
 
-        region_selection = zeros(stars_in_catalog,type=Bool)
+        region_selection = zeros(stars_in_catalog,dtype=bool_)
         ang_dist = angular_distance(fieldcentre, (self.index.ra, self.index.dec))
         select_regions = (ang_dist -radius -self.index.max_radius) <= 0.0
         first_records = self.index.first_record[select_regions]
@@ -147,21 +147,21 @@ class StarCatalog:
 
         selection_array = transpose(array([region_selection,
                                            region_selection,
-                                           region_selection],type=Bool))
-        
+                                           region_selection],dtype=bool_))
+
         selected_regions = self.catalog[selection_array]
         stars_in_field = len(selected_regions)/3
         selected_regions = reshape(selected_regions, (stars_in_field, 3))
-        
+
         ra = selected_regions[:,0]
         dec = selected_regions[:,1]
-        
+
         angular_distances = angular_distance( (ra,dec),fieldcentre)
         # select on position
         star_in_field     = angular_distances < radius
         selection_array = transpose(array([star_in_field,
                                            star_in_field,
-                                           star_in_field],type=Bool))
+                                           star_in_field],dtype=bool_))
         position_selection = selected_regions[selection_array]
         stars_in_field = len(position_selection)/3
         position_selection = reshape(position_selection, (stars_in_field, 3))
@@ -172,13 +172,13 @@ class StarCatalog:
 
         selection_array = transpose(array([bright_enough,
                                            bright_enough,
-                                           bright_enough], type=Bool))
+                                           bright_enough], dtype=bool_))
         selection = position_selection[selection_array]
         stars_in_field = len(selection)/3
         selection =  reshape(selection, (stars_in_field, 3))
-        
+
         return selection
-    
+
     pass
 
 __all__ =['StarCatalog']

@@ -15,7 +15,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 from fchart.deepsky_object import *
-from numarray import *
+from numpy import *
 import sys
 import string
 
@@ -42,7 +42,7 @@ def parse_saguaro_line(line):
         print 'ERROR: '+str(cnsplit)
         sys.exit(1)
         pass
-    
+
     typestr = strs[2].strip()
     typenum = UNKNOWN
 
@@ -107,7 +107,7 @@ def parse_saguaro_line(line):
             rlong /= 3600.0
             pass
         pass
-    
+
     rshortstr = strs[11].strip()
     rshort = -1
     if rshortstr != '':

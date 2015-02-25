@@ -14,7 +14,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-from numarray import *
+from numpy import *
 
 from fchart import deepsky_object as deepsky
 
@@ -35,13 +35,13 @@ def parse_rev_ngcic_line(line, catalog='NGC'):
         if compchar != ' ':
             object.component = int(compchar)
             pass
-            
+
         object.type = int(typechar)
         if object.type == deepsky.N and line[78:81] == 'SNR':
             object.type = deepsky.SNR
             pass
         object.constellation = line[15:18].upper()
-        
+
         ra = pi*(float(line[20:22])+float(line[23:25])/60.0 + float(line[26:28])/3600.0)/12.0
         dec = pi*(float(line[32:34]) + float(line[35:37])/60.0 + float(line[38:40])/3600.0)/180.0
         if line[31] == '-':
@@ -49,7 +49,7 @@ def parse_rev_ngcic_line(line, catalog='NGC'):
             pass
         object.ra = ra
         object.dec = dec
-        
+
         magtext= line[50:54].rstrip()
         if magtext != '':
             object.mag = float(magtext)
@@ -59,27 +59,27 @@ def parse_rev_ngcic_line(line, catalog='NGC'):
                 object.mag = float(magtext)
                 pass
             pass
-        
-        
+
+
         rlongtext = line[61:67].rstrip()
         if rlongtext != '':
             object.rlong = float(rlongtext)/60.0*pi/180.0/2.0
             pass
-        
+
         rshorttext = line[68:73].rstrip()
         if rshorttext != '':
             object.rshort = float(rshorttext)/60.0*pi/180.0/2.0
             pass
-        
+
         if object.rshort < 0.0:
             object.rshort = object.rlong
             pass
-        
+
         posangletext = line[74:77].rstrip()
         if posangletext != '':
             object.position_angle = float(posangletext)*pi/180.0
             pass
-        
+
         ID1text = line[96:111].strip()
         if ID1text != '':
             if ID1text[0:2] == 'M ':
@@ -89,16 +89,16 @@ def parse_rev_ngcic_line(line, catalog='NGC'):
                 pass
             pass
 
-        
+
         ID2text = line[112:127].strip()
         if ID2text != '':
             if ID2text.split()[0].strip() == catalog:
                 object.all_names.append(ID2text.split()[1].split('-')[0].strip())
                 pass
             pass
-        
+
         pass
-    
+
     return object
 
 
@@ -131,7 +131,7 @@ def import_revised_ngcic(filename, ngcic='NGC'):# or 'IC'
                 pass #if object...
             pass # if linelength...
         pass
-    
+
     return ngclist_single, ngclist_multiple
 
 
@@ -170,8 +170,8 @@ if __name__=='__main__':
         else:
             print (i.cat+' '+i.name).ljust(10)+' '+str(i.mag).rjust(4)+' '+deepsky.TYPENAME[i.type]
         pass
-    
-    
+
+
     mlist = []
     mnumbers=[]
     for object in deeplist:

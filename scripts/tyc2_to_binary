@@ -16,8 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-from numarray import *
+from numpy import *
 from string import *
 import sys
 import os
@@ -39,7 +38,7 @@ if len(sys.argv) >= 3:
     pass
 
 
-tyc2_array = zeros((2539913+17588+1146,3), type=Float32)
+tyc2_array = zeros((2539913+17588+1146,3), dtype=float32)
 
 filename_in=tycho2_directory+'/tyc2.dat'
 filename_out=out_dir+'/tyc2.bin'

@@ -15,7 +15,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 import os
-from numarray import *
+from numpy import *
 from string import *
 import struct
 import glob
@@ -39,11 +39,11 @@ class FontMetrics:
 
     def read_metrics(self, afm_name):
         widths = zeros(256)
-    
+
         f = file(self.dir+os.sep+afm_name, 'r')
         lines = f.readlines()
         f.close()
-        
+
         for line in lines:
             split_up  = line.split()
             if 'WX' in split_up and ';' in split_up and 'C' in split_up:
@@ -54,7 +54,7 @@ class FontMetrics:
                     pass
                 pass
             pass # for...
-        
+
         return widths
 
 

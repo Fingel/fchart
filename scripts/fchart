@@ -18,8 +18,7 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 # numarray library: http://www.stsci.edu/resources/software_hardware/numarray
-from numarray import *
-
+from numpy import *
 # Standard python modules
 from math import acos
 import string
@@ -68,20 +67,20 @@ LICENSE file.
 def print_help():
     print_version()
     helptext ="""
-    
+
 Usage: fchart [options] sourcename1 sourcename2 ...
 
    Output filenames are \"sourcename1.eps\", \"sourcename2.eps\", etcetera.
-   
+
 Options:
    -h, --help            print help
-   
+
    -d, --deep-sky        deepsky limiting magnitude (default: 12.5)
-   
+
    -s, --stars           stellar limiting magnitude (default: 13.8)
-   
+
    -p, --paper-width     width of the map in mm (default: 180.0)
-   
+
    -f, --field-size      diameter of the field of view in degrees
                          (default: 7.0)
 
@@ -108,7 +107,7 @@ Options:
                          \"Messier\" asterisms are plotted. All others are
                          ignored. The default setting helps cleaning up
                          especially Virgo cluster maps.
-                         
+
    -u, --force-pg        by default, objects in external galaxies are only
                          plotted if their magnitude is known and lower than
                          the limiting magnitude of deepsky objects. If this
@@ -240,14 +239,14 @@ class RuntimeSettings:
                     if len(data) >= 3:
                         label_str = data[2].lstrip().rstrip()
                         pass
-                    
+
                     if len(data) >= 4:
                         label_pos = data[3].rstrip().lstrip()
                         pass
-                    
+
                     rasplit = ra_str.split(':')
                     decsplit = dec_str.split(':')
-                    
+
                     rah, ram, ras = 0.0, 0.0, 0.0
                     rah= float(rasplit[0])
                     if len(rasplit) >= 2:
@@ -256,7 +255,7 @@ class RuntimeSettings:
                     if len(rasplit) >= 3:
                         ras = float(rasplit[2])
                         pass
-                    
+
                     decd, decm, decs, sign = 0.0, 0.0, 0.0, 1
                     decd= abs(float(decsplit[0]))
                     if decsplit[0][0] == '-':
@@ -299,7 +298,7 @@ if __name__ == '__main__':
 
     # Create default settings and parse commandline
     settings = RuntimeSettings()
-        
+
     print_version()
 
 
@@ -346,8 +345,8 @@ if __name__ == '__main__':
             r = -1
         return r
     messierlist.sort(msort)
-    
-    deepskycatalog = DeepskyCatalog(reduced_deeplist) 
+
+    deepskycatalog = DeepskyCatalog(reduced_deeplist)
 
     # Final report before mapmaking
     print str(len(reduced_deeplist))+'/'+str(len(deeplist))+' deepsky objects after magnitude/messier selection.'
@@ -416,14 +415,14 @@ if __name__ == '__main__':
                     if len(data) >= 3:
                         label_str = data[2].lstrip().rstrip()
                         pass
-                    
+
                     if len(data) >= 4:
                         label_pos = data[3].rstrip().lstrip()
                         pass
-                    
+
                     rasplit = ra_str.split(':')
                     decsplit = dec_str.split(':')
-                    
+
                     rah, ram, ras = 0.0, 0.0, 0.0
                     rah= float(rasplit[0])
                     if len(rasplit) >= 2:
@@ -432,7 +431,7 @@ if __name__ == '__main__':
                     if len(rasplit) >= 3:
                         ras = float(rasplit[2])
                         pass
-                    
+
                     decd, decm, decs, sign = 0.0, 0.0, 0.0, 1
                     decd= abs(float(decsplit[0]))
                     if decsplit[0][0] == '-':
@@ -453,7 +452,7 @@ if __name__ == '__main__':
                     sys.exit(-1)
                     pass
                 pass
-            
+
             else:# : in source
                 index = 0
                 cat = ''
@@ -470,20 +469,20 @@ if __name__ == '__main__':
                             break
                         pass # for i...
                     pass
-                
+
                 if cat.upper() == 'N' or cat == '' or cat.upper=='NGC':
                     cat = 'NGC'
                     pass
-                
+
                 if cat.upper() == 'I' or cat.upper() == 'IC':
                     cat = 'IC'
                     pass
-                
+
                 name = source[index:].upper().rstrip().lstrip()
                 if cat == 'NGC' and name == '3690':
                     name = '3690A'
                     pass
-                
+
                 # determine ra, dec of fieldcentre
                 ra = -1.0
                 dec = 0.0
@@ -507,16 +506,16 @@ if __name__ == '__main__':
                             break
                         pass # for mobj
                     pass # if cat == 'M'...
-                
+
                 pass
-            
+
             print ''
             print cat, name
 
             if ra >= 0.0:
                 artist = None
                 if filename == '':
-                    filename = settings.output_dir+os.sep+source                
+                    filename = settings.output_dir+os.sep+source
                 if settings.output_type.upper() == 'EPS':
                     filename += '.eps'
                     artist = EPSDrawing(filename,
@@ -536,7 +535,7 @@ if __name__ == '__main__':
                                   lm_stars = settings.limiting_magnitude_stars)
                 sm.set_field(ra, dec, settings.fieldsize*pi/180.0/2.0)
                 caption = cat+' '+name
-                
+
                 if settings.caption != False:
                     caption = settings.caption
                     pass
@@ -550,5 +549,5 @@ if __name__ == '__main__':
                 pass
             pass # if source == 'allmessier'
         pass # for source in sourcelist
-    
+
     pass

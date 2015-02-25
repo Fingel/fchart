@@ -15,7 +15,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 from deepsky_object import *
-from numarray import *
+from numpy import *
 from fchart.astrocalc import *
 
 from cStringIO import StringIO
@@ -24,8 +24,8 @@ class DeepskyCatalog:
     def __init__(self, deepsky_list=[], reject_doubles=False):
         self.deepsky_list = []
         self.names = []
-        self.pos_mag_array = zeros((0,3),type=Float64)
-        
+        self.pos_mag_array = zeros((0,3),dtype=float64)
+
         self.add_objects(deepsky_list, reject_doubles)
         pass
 
@@ -37,7 +37,7 @@ class DeepskyCatalog:
         else:
             deepsky_list = list(objects)
             pass
-        
+
         if reject_doubles:
             # Reject doubles
             deepsky_list.sort(cmp_name)
@@ -53,7 +53,7 @@ class DeepskyCatalog:
                     dec = object.dec
                     include = True
                     ang_dist = angular_distance
-        
+
                     old_list = list(self.deepsky_list)
                     old_list.reverse()
                     for old in old_list:
@@ -61,16 +61,16 @@ class DeepskyCatalog:
                             old.all_names.append(object.name)
                             include = False
                             break
-                        
+
                         pass
-                    
+
                     if include:
                         self.deepsky_list.append(object)
                         self.names.append(name)
                         pass
                     pass # if len(self.names)
                 pass # for object in deepsky_list
-            
+
             for object in self.deepsky_list:
                 name = object.name
                 count = 1
@@ -90,10 +90,10 @@ class DeepskyCatalog:
                 self.names.append(object.cat.upper()+' '+object.name.upper())
                 pass
             pass # reject_doubles
-            
-        
+
+
         # Recompute help array
-        self.pos_mag_array = zeros((len(self.deepsky_list),3),type=Float64)
+        self.pos_mag_array = zeros((len(self.deepsky_list),3),dtype=float64)
         for i in range(len(self.deepsky_list)):
             self.pos_mag_array[i,0] = self.deepsky_list[i].ra
             self.pos_mag_array[i,1] = self.deepsky_list[i].dec
@@ -112,7 +112,7 @@ class DeepskyCatalog:
     def select_deepsky(self, fieldcentre, radius, lm_deepsky=100.0, force_messier=False):
         """
         returns a list of deepsky objects meeting the set requirements.
-        
+
         fieldcentre is a tuple (ra, dec) in radians. radius is also in
         radians
         """
@@ -128,8 +128,7 @@ class DeepskyCatalog:
         for index in indices:
             selected_list_pos.append(self.deepsky_list[index])
             pass
-        
-        
+
         # select on magnitude
         selection = []
         for object in selected_list_pos:
@@ -138,7 +137,7 @@ class DeepskyCatalog:
                 selection.append(object)
                 pass
             pass
-        
+
         return DeepskyCatalog(selection,reject_doubles=False)
 
 
