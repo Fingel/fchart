@@ -1,0 +1,211 @@
+Installation
+------------
+
+* Make sure you have the numarray library installed
+  (http://www.stsci.edu/resources/software_hardware/numarray)
+
+* Execute the setup.py script and read the help:
+  $ python setup.py install --help
+  Once confident with the options, execute:
+  $ python setup.py install
+
+* Make sure that the fchart module library  resides in a directory
+  that is in your PYTHONPATH. The default settings ensure this.
+
+
+* Get the Tycho2 star catalog from:
+
+  http://cdsweb.u-strasbg.fr/viz-bin/ftp-index?/ftp/cats/aliases/T/TYC2
+
+* Unzip all the .dat.gz files
+
+* Concatenate the 'tyc2.dat.??' files using, e.g.
+  $ cat tyc2.dat.?? >tyc2.dat
+
+* Execute the tyc2_to_binary.py script:
+  $ python tyc2_to_binary <TYCHO_DIR> <TARGET_DIR>
+  if TARGET_DIR is not specified, it will be the ..../fchart/catalogs
+  directory. 
+
+* Now run:
+  $ fchart m45
+  $ ls
+
+  and see what happened
+
+* If there are complaints that certain python modules cannot be found,
+  make shure that the directory containing astrocalc.py, revngc.py are
+  in your PYTHONPATH environment variable.
+
+  type 
+  $ man `echo $SHELL | sed -e"s/.*\/\(.*\)/\1/g"`
+  if you do not know how to set environment variables.
+
+* fchart --help dumps a short manual to your screen.
+
+That's all.  You can view the output using ghostview, gv, or whatever
+postscript viewer you prefer. There is also PDF output (-O pdf)
+
+
+Michiel
+------------------------------------------------------
+
+*The* manual:
+
+Usage: fchart [options] sourcename1 sourcename2 ...
+
+   Output filenames are "sourcename1.eps", "sourcename2.eps", etcetera.
+
+Options:
+   -h, --help            print help
+
+   -d, --deep-sky        deepsky limiting magnitude (default: 12.5)
+
+   -s, --stars           stellar limiting magnitude (default: 13.8)
+
+   -p, --paper-width     width of the map in mm (default: 180.0)
+
+   -f, --field-size      diameter of the field of view in degrees
+                         (default: 7.0)
+
+   -m, --force-messier   select all Messier objects, regardless of the
+                         limiting magnitude for deepsky objects
+
+   -o, --output-dir      specify the output directory             (default: .)
+
+   -O, --output-type     specify output fileformat. Either EPS or
+                         PDF. On posix systems this defaults to
+                         EPS. On other systems the default is PDF. EPS
+                         output is generally a lot compacter in
+                         filesize than (even compressed) pdf output
+                         because PDF does not have a native 'circle'
+                         command (and circles we draw...). For rich
+                         fields, it takes considerably more time to
+                         generate PDF output than to generate EPS
+                         output, due to compression of the PDF streams.
+
+   -l, --language        specify language on the maps, either 'en' or 'nl'
+                         (default: en)
+
+   -a, --force-asterisms force plotting of  asterisms in map. By default, only
+                         "Messier" asterisms are plotted. All others are
+                         ignored. The default setting helps cleaning up
+                         especially Virgo cluster maps.
+
+   -u, --force-pg        by default, objects in external galaxies are only
+                         plotted if their magnitude is known and lower than
+                         the limiting magnitude of deepsky objects. If this
+                         option is given, also objects in external galaxies
+                         of which the magnitude is not known are plotted. This
+                         option will clutter some galaxies like M 101 and
+                         NGC 4559.
+
+   -x, --add-cross       add a cross in the map at a specified position. The
+                         format of the argument of this option is:
+                         "rah:ram:ras,+/-decd:decm:decs,label,labelposition"
+                         For example: -x"20:35:25.4,+60:07:17.7,SN,t" for
+                         the supernova sn2004et in NGC 6946. The label position
+                         can be 't' for top, 'b' for bottom, 'l' for left, or
+                         'r' for right. The label and label position may be
+                         omitted.
+
+Sourcenames:
+   Valid sourcenames are for example:
+   - NGC891, NgC891, n891 or 891 for NGC objects
+   - IC1396, i1396, iC1396, I1396 for IC objects
+   - m110, M3 for Messier objects
+
+   There is one special sourcename, which is "allmessier". When this name
+   is encountered, fchart dumps maps of all messier objects to the output
+   directory.
+------------------------------------------------------
+Catalogs included: saguaro astronomy club v.7.2 and revised NGC/IC project
+
+Preferred names:
+M
+NGC
+IC
+other
+
+All catalogs:
+Abell      - George Abell (planetary nebulae and galaxy clusters)
+ADS        - Aitken Double Star catalog
+AM         - Arp-Madore (globular clusters)
+Antalova   - (open clusters)
+Ap         - Apriamasvili (planetary nebulae)
+Arp        - Halton Arp (interacting galaxies)
+Bark       - Barkhatova (open clusters)
+B          - Barnard (dark nebulae)
+Basel      - (open clusters)
+BD         - Bonner Durchmusterung (stars)
+Berk       - Berkeley (open clusters)
+Be         - Bernes (dark nebulae)
+Biur       - Biurakan (open clusters)
+Blanco     - (open clusters)
+Bochum     - (open clusters)
+Ced        - Cederblad (bright nebulae)
+Cr         - Collinder (open clusters)
+Czernik    - (open clusters)
+DDO        - David Dunlap Observatory (dwarf galaxies)
+Do         - Dolidze (open clusters)
+DoDz       - Dolidze-Dzimselejsvili (open clusters)
+Dun        - Dunlop (globular clusters)
+Fein       - Feinstein (open clusters)
+Frolov     - (open clusters)
+Gum        - (bright nebulae)
+H          - William Herschel (globular clusters)
+Haffner    - (open clusters)
+Harvard    - (open clusters)
+He         - Henize (planetary nebulae)
+Hogg       - (open clusters)
+HP         - Haute Provence (globular clusters)
+Hu         - Humason (planetary nebulae)
+IC         - 1st and 2nd Index Catalogs to the NGC
+                  (All types of objects except dark nebulae)
+Isk        - Iskudarian (open clusters)
+J          - Jonckheere (planetary nebulae)
+K          - Kohoutek (planetary nebulae)
+King       - (open clusters)
+Kr         - Krasnogorskaja (planetary nebulae)
+Lac        - Lacaille (globular clusters)
+Loden      - (open clusters)
+LDN        - Lynds (dark nebulae)
+Lynga      - (open clusters)
+M          - Messier (all types of objects except dark nebula)
+MCG        - Morphological Catalog of Galaxies
+Me         - Merrill (plantary nebulae)
+Mrk        - Markarian (open clusters and galaxies)
+Mel        - Melotte (open clusters)
+M1 thru M4 - Minkowski (planetary nebulae)
+NGC        - New General Catalog of Nebulae & Clusters of Stars.
+                  (All types of objects except dark nebulae)
+Pal        - Palomar (globular clusters)
+PC         - Peimbert and Costero (planetary nebulae)
+Pismis     - (open clusters)
+PK         - Perek & Kohoutek (planetary nebulae)
+RCW        - Rodgers, Campbell, & Whiteoak (bright nebulae)
+Roslund    - (open clusters)
+Ru         - Ruprecht (open clusters)
+Sa         - Sandqvist (dark nebulae)
+Sher       - (open clusters)
+Sh         - Sharpless (bright nebulae)
+SL         - Sandqvist & Lindroos (dark nebulae)
+SL         - Shapley & Lindsay (clusters in LMC)
+Steph      - Stephenson (open clusters)
+Stock      - (open clusters)
+Ter        - Terzan (globular clusters)
+Tombaugh   - (open clusters)
+Ton        - Tonantzintla (globular clusters)
+Tr         - Trumpler (open clusters)
+UA         - Catalog of selected Non-UGC galaxies
+UGC        - Uppsala General Catalog (galaxies)
+UKS        - United Kingdom Schmidt (globular clusters)
+Upgren     - (open clusters)
+VV         - Vorontsov-Velyaminov (interacting galaxies)
+vdB        - van den Bergh (open clusters, bright nebulae)
+vdBH       - van den Bergh & Herbst (bright nebulae)
+vdB-Ha     - van den Bergh-Hagen (open clusters)
+Vy         - Vyssotsky (planetary nebulae)
+Waterloo   - (open clusters)
+Westr      - Westerlund (open clusters)
+Zw         - Zwicky (galaxies)

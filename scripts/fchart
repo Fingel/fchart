@@ -1,0 +1,554 @@
+#!/usr/bin/python
+
+#    fchart draws beautiful deepsky charts in vector formats
+#    Copyright (C) 2005  Michiel Brentjens
+#
+#    This program is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program; if not, write to the Free Software
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+# numarray library: http://www.stsci.edu/resources/software_hardware/numarray
+from numarray import *
+
+# Standard python modules
+from math import acos
+import string
+import os
+import sys
+import stat
+import getopt
+
+
+# Local modules:
+from fchart.astrocalc import *
+from fchart import revngc
+from fchart import saguaro
+from fchart import deepsky_object as deepsky
+from fchart.deepsky import *
+from fchart.star_catalog import *
+from fchart.skymap_engine import *
+
+from fchart.eps import *
+from fchart.pdf import *
+from fchart.fonts import FontMetrics
+
+
+from fchart.config import *
+
+
+#################################################################
+
+
+def print_version():
+    print 'fchart version '+FCHART_VERSION+' (c) 2005 Michiel Brentjens'
+    print """
+fchart comes with ABSOLUTELY NO WARRANTY. It is distributed under the
+GNU General Public License (GPL) version 2. For details see the LICENSE
+file distributed with the software. This is free software, and you are
+welcome to redistribute it under certain conditions as specified in the
+LICENSE file.
+"""
+    pass
+
+
+
+
+
+
+def print_help():
+    print_version()
+    helptext ="""
+    
+Usage: fchart [options] sourcename1 sourcename2 ...
+
+   Output filenames are \"sourcename1.eps\", \"sourcename2.eps\", etcetera.
+   
+Options:
+   -h, --help            print help
+   
+   -d, --deep-sky        deepsky limiting magnitude (default: 12.5)
+   
+   -s, --stars           stellar limiting magnitude (default: 13.8)
+   
+   -p, --paper-width     width of the map in mm (default: 180.0)
+   
+   -f, --field-size      diameter of the field of view in degrees
+                         (default: 7.0)
+
+   -m, --force-messier   select all Messier objects, regardless of the
+                         limiting magnitude for deepsky objects
+
+   -o, --output-dir      specify the output directory             (default: .)
+
+   -O, --output-type     specify output fileformat. Either EPS or
+                         PDF. On posix systems this defaults to
+                         EPS. On other systems the default is PDF. EPS
+                         output is generally a lot compacter in
+                         filesize than (even compressed) pdf output
+                         because PDF does not have a native 'circle'
+                         command (and circles we draw...). For rich
+                         fields, it takes considerably more time to
+                         generate PDF output than to generate EPS
+                         output, due to compression of the PDF streams.
+
+   -l, --language        specify language on the maps, either 'en' or 'nl'
+                         (default: en)
+
+   -a, --force-asterisms force plotting of  asterisms in map. By default, only
+                         \"Messier\" asterisms are plotted. All others are
+                         ignored. The default setting helps cleaning up
+                         especially Virgo cluster maps.
+                         
+   -u, --force-pg        by default, objects in external galaxies are only
+                         plotted if their magnitude is known and lower than
+                         the limiting magnitude of deepsky objects. If this
+                         option is given, also objects in external galaxies
+                         of which the magnitude is not known are plotted. This
+                         option will clutter some galaxies like M 101 and
+                         NGC 4559.
+
+   -x, --add-cross       add a cross in the map at a specified position. The
+                         format of the argument of this option is:
+                         \"rah:ram:ras,+/-decd:decm:decs,label,labelposition\"
+                         For example: -x\"20:35:25.4,+60:07:17.7,SN,t\" for
+                         the supernova sn2004et in NGC 6946. The label position
+                         can be 't' for top, 'b' for bottom, 'l' for left, or
+                         'r' for right. The label and label position may be
+                         omitted.
+
+   -v, --version         display version information and exit.
+
+   -c, --caption         force a specific caption for the maps. All maps will
+                         get the same caption.
+
+Sourcenames:
+   Valid sourcenames are for example:
+   - NGC891, NgC891, n891 or 891 for NGC objects
+   - IC1396, i1396, iC1396, I1396 for IC objects
+   - m110, M3 for Messier objects
+   - \"9:35:00.8,-34:15:33,SomeCaption\" for other positions
+
+   There is one special sourcename, which is \"allmessier\". When this name
+   is encountered, fchart dumps maps of all messier objects to the output
+   directory.
+
+    """
+    print helptext
+
+    pass
+
+
+
+
+class RuntimeSettings:
+    def __init__(self):
+        self.limiting_magnitude_stars   = 13.8
+        self.limiting_magnitude_deepsky = 12.5
+        self.paperwidth                 = 180.0 # mm
+        self.fieldsize                  = 7.0   # degrees
+        self.force_messier              = False
+        self.force_asterisms            = False
+        self.force_unknown              = False
+        self.output_dir                 = '.'
+        self.extra_positions_list       = []
+        self.language                   = EN
+        self.sourcelist                 = []
+        self.output_type                ='EPS'
+        self.caption                    = False
+        self.fieldcentre                = (-1,-1)
+
+        if os.name != 'posix':
+            self.output_type = 'PDF'
+            pass
+        self.parse_commandline()
+        pass
+
+    def parse_commandline(self):
+        optlist, self.sourcelist = getopt.gnu_getopt( sys.argv[1:],
+                                                      'hd:s:p:f:mo:x:l:auO:vc:',
+               ['help', 'deep-sky', 'stars', 'paper-width', 'field-size',
+                'force-messier', 'output-dir', 'add-cross', 'language',
+                'force-asterisms', 'force-pg', 'output-type', 'version', 'caption'])
+
+        for option, argument in optlist:
+            if option in ['-h', '--help']:
+                print_help()
+                sys.exit(1)
+                pass
+            if option in ['-v', '--version']:
+                print_version()
+                sys.exit(1)
+                pass
+            if option in ['-d', '--deep-sky']:
+                self.limiting_magnitude_deepsky = float(argument)
+                pass
+            if option in ['-s', '--stars']:
+                self.limiting_magnitude_stars = float(argument)
+                pass
+            if option in ['-p', '--paper-width']:
+                self.paperwidth = float(argument)
+                pass
+            if option in ['-f', '--field-size']:
+                self.fieldsize = float(argument)
+                pass
+            if option in ['-m', '--force-messier']:
+                self.force_messier = True
+                pass
+            if option in ['-a', '--force-asterisms']:
+                self.force_asterisms = True
+                pass
+            if option in ['-u', '--force-pg']:
+                self.force_unknown = True
+                pass
+            if option in ['-o', '--output-dir']:
+                self.output_dir = argument
+                pass
+            if option in ['-O', '--output-type']:
+                self.output_type = argument
+                pass
+            if option in ['-c', '--caption']:
+                self.caption = argument
+                pass
+            if option in ['-l', '--language']:
+                if argument.upper() == 'NL':
+                    self.language = NL
+                elif argument.upper() == 'EN':
+                    self.language = EN
+                else:
+                    print 'Unsupported language '+argument
+                    sys.exit(-1)
+                    pass
+                pass
+            if option in ['-x', '--add-cross']:
+                data= argument.split(',')
+                if len(data) >= 2:
+                    ra_str, dec_str = data[0:2]
+                    label_str = ''
+                    label_pos = 'r'
+                    ra_str = ra_str.lstrip().rstrip()
+                    dec_str = dec_str.lstrip().rstrip()
+                    if len(data) >= 3:
+                        label_str = data[2].lstrip().rstrip()
+                        pass
+                    
+                    if len(data) >= 4:
+                        label_pos = data[3].rstrip().lstrip()
+                        pass
+                    
+                    rasplit = ra_str.split(':')
+                    decsplit = dec_str.split(':')
+                    
+                    rah, ram, ras = 0.0, 0.0, 0.0
+                    rah= float(rasplit[0])
+                    if len(rasplit) >= 2:
+                        ram = float(rasplit[1])
+                        pass
+                    if len(rasplit) >= 3:
+                        ras = float(rasplit[2])
+                        pass
+                    
+                    decd, decm, decs, sign = 0.0, 0.0, 0.0, 1
+                    decd= abs(float(decsplit[0]))
+                    if decsplit[0][0] == '-':
+                        sign = -1
+                        pass
+                    if len(decsplit) >= 2:
+                        decm = float(decsplit[1])
+                        pass
+                    if len(decsplit) >= 3:
+                        decs = float(decsplit[2])
+                        pass
+                    rax, decx = hms2rad(rah, ram, ras), dms2rad(decd, decm, decs, sign)
+                    self.extra_positions_list.append([rax,decx,label_str,label_pos])
+                else:
+                    print 'option -x needs three part argument, separated by comma\'s: -x "ra,dec,label"'
+                    sys.exit(-1)
+                    pass
+                pass
+            pass
+        if len(self.sourcelist) == 0:
+            print_help()
+            sys.exit(1)
+            pass
+
+        pass
+    pass
+
+
+
+#############################################################
+#                                                           #
+#                      MAIN  PROGRAM                        #
+#                                                           #
+#############################################################
+
+if __name__ == '__main__':
+
+    data_dir    = os.path.join(FCHART_DATA_DIR,'catalogs')
+    font_metrics = FontMetrics(os.path.join(FCHART_DATA_DIR, 'font-metrics'))
+
+    # Create default settings and parse commandline
+    settings = RuntimeSettings()
+        
+    print_version()
+
+
+    # Create output space if necessary
+    if not os.path.exists(settings.output_dir):
+        print 'Creating directory '+settings.output_dir
+        os.mkdir(settings.output_dir)
+        pass
+
+    # Read basic catalogs
+    starcatalog    = StarCatalog(data_dir+os.sep+'tyc2.bin', data_dir+os.sep+'index.dat')
+    deeplist       = get_deepsky_list(data_dir)
+
+
+    # Apply magnitude selection to deepsky list, build Messier list
+    reduced_deeplist = []
+    messierlist=[]
+    for object in deeplist:
+        if object.messier > 0:
+            messierlist.append(object)
+            pass
+        if settings.force_messier:
+            if (object.mag <=settings.limiting_magnitude_deepsky and object.mag > -1) or\
+                   (object.messier > 0):
+                reduced_deeplist.append(object)
+                pass
+        else:
+            if object.mag <= settings.limiting_magnitude_deepsky and \
+                   object.type != deepsky.GALCL and \
+                   (object.type != deepsky.STARS or settings.force_asterisms\
+                    or (object.messier > 0 and object.type == deepsky.STARS))\
+                   and (object.type != deepsky.PG or settings.force_unknown or\
+                        object.type == deepsky.PG and object.mag > -5.0):
+                reduced_deeplist.append(object)
+                pass
+            pass
+        pass
+
+    def msort(x,y):
+        r = 0
+        if x.messier > y.messier:
+            r = 1
+        if x.messier < y.messier:
+            r = -1
+        return r
+    messierlist.sort(msort)
+    
+    deepskycatalog = DeepskyCatalog(reduced_deeplist) 
+
+    # Final report before mapmaking
+    print str(len(reduced_deeplist))+'/'+str(len(deeplist))+' deepsky objects after magnitude/messier selection.'
+
+    print 'Making maps with: '
+    print '   Deep sky lm    : '+ str(settings.limiting_magnitude_deepsky)
+    print '   Stellar lm     : '+ str(settings.limiting_magnitude_stars)
+    print '   Fieldsize      : '+ str(settings.fieldsize)+' degrees'
+    print '   Paperwidth     : '+ str(settings.paperwidth)+ ' mm'
+    print '   Output dir     : '+ settings.output_dir
+    print '   Output type    : '+ settings.output_type.upper()
+    print '   Force Messier  : '+ str(settings.force_messier)
+    print '   Force asterisms: '+ str(settings.force_asterisms)
+    print '   Force pg       : '+ str(settings.force_unknown)
+    print '   Extra points   : '+str(len(settings.extra_positions_list))
+
+    for object in settings.extra_positions_list:
+        rax,decx,label,labelpos = object
+        print label,':', rad2hms(rax), rad2dms(decx)
+        pass
+
+    # For all sources...
+    for source in settings.sourcelist:
+        filename = ''
+        # Parse sourcename
+        if source.upper().rstrip().lstrip() == 'ALLMESSIER':
+            print 'alles'
+            for object in messierlist:
+                print ''
+                print 'M '+str(object.messier)
+                ra  = object.ra
+                dec = object.dec
+                artist = None
+                filename = settings.output_dir+os.sep+'m'+str(object.messier).rjust(3).replace(' ','0')
+                if settings.output_type.upper() == 'EPS':
+                    filename += '.eps'
+                    artist = EPSDrawing(filename,
+                                        settings.paperwidth,
+                                        settings.paperwidth)
+                elif settings.output_type.upper() == 'PDF':
+                    filename += '.pdf'
+                    artist = PDFDrawing(filename,
+                                        settings.paperwidth,
+                                        settings.paperwidth,
+                                        font_metrics)
+                else:
+                    print 'Unknown output type: '+ settings.output_type.upper()
+                    sys.exit(1)
+                    pass
+                sm = SkymapEngine(artist, font_metrics, settings.language,
+                                  lm_stars = settings.limiting_magnitude_stars)
+                sm.set_field(ra, dec, settings.fieldsize*pi/180.0/2.0)
+                sm.set_caption('M '+str(object.messier))
+                sm.make_map(starcatalog, deepskycatalog,
+                            settings.extra_positions_list)
+                pass
+        else:
+            if ':' in source:
+                data= source.split(',')
+                if len(data) >= 3:
+                    ra_str, dec_str = data[0:2]
+                    caption_str = ''
+                    label_pos = 'r'
+                    ra_str = ra_str.lstrip().rstrip()
+                    dec_str = dec_str.lstrip().rstrip()
+                    if len(data) >= 3:
+                        label_str = data[2].lstrip().rstrip()
+                        pass
+                    
+                    if len(data) >= 4:
+                        label_pos = data[3].rstrip().lstrip()
+                        pass
+                    
+                    rasplit = ra_str.split(':')
+                    decsplit = dec_str.split(':')
+                    
+                    rah, ram, ras = 0.0, 0.0, 0.0
+                    rah= float(rasplit[0])
+                    if len(rasplit) >= 2:
+                        ram = float(rasplit[1])
+                        pass
+                    if len(rasplit) >= 3:
+                        ras = float(rasplit[2])
+                        pass
+                    
+                    decd, decm, decs, sign = 0.0, 0.0, 0.0, 1
+                    decd= abs(float(decsplit[0]))
+                    if decsplit[0][0] == '-':
+                        sign = -1
+                        pass
+                    if len(decsplit) >= 2:
+                        decm = float(decsplit[1])
+                        pass
+                    if len(decsplit) >= 3:
+                        decs = float(decsplit[2])
+                        pass
+                    ra, dec = hms2rad(rah, ram, ras), dms2rad(decd, decm, decs, sign)
+                    cat = ''
+                    name = string.join(data[2:], ',')
+                    filename = settings.output_dir+os.sep+name.replace(' ','-').replace('/', '-').replace(',', '')
+                else:
+                    print 'Position specification needs three part argument, separated by comma\'s: "ra,dec,caption"'
+                    sys.exit(-1)
+                    pass
+                pass
+            
+            else:# : in source
+                index = 0
+                cat = ''
+                if source[0:2].upper() == '3C':
+                    cat = '3C'
+                    index = 2
+                else:
+                    for i in range(len(source)):
+                        ch = source[i]
+                        if ch.isalpha():
+                            cat += ch
+                        else:
+                            index = i
+                            break
+                        pass # for i...
+                    pass
+                
+                if cat.upper() == 'N' or cat == '' or cat.upper=='NGC':
+                    cat = 'NGC'
+                    pass
+                
+                if cat.upper() == 'I' or cat.upper() == 'IC':
+                    cat = 'IC'
+                    pass
+                
+                name = source[index:].upper().rstrip().lstrip()
+                if cat == 'NGC' and name == '3690':
+                    name = '3690A'
+                    pass
+                
+                # determine ra, dec of fieldcentre
+                ra = -1.0
+                dec = 0.0
+                if cat.upper() != 'M':
+                    for niobj in deeplist:
+                        if niobj.cat.upper() == cat.upper():
+                            if name.upper() in niobj.all_names:
+                                ra = niobj.ra
+                                dec = niobj.dec
+                                cat = niobj.cat
+                                break
+                            pass # if niobj.cat
+                        pass # for niobj
+                else:
+                    cat = 'M'
+                    for mobj in messierlist:
+                        if mobj.messier == int(name):
+                            ra = mobj.ra
+                            dec = mobj.dec
+                            name = str(mobj.messier)
+                            break
+                        pass # for mobj
+                    pass # if cat == 'M'...
+                
+                pass
+            
+            print ''
+            print cat, name
+
+            if ra >= 0.0:
+                artist = None
+                if filename == '':
+                    filename = settings.output_dir+os.sep+source                
+                if settings.output_type.upper() == 'EPS':
+                    filename += '.eps'
+                    artist = EPSDrawing(filename,
+                                        settings.paperwidth,
+                                        settings.paperwidth)
+                elif settings.output_type.upper() == 'PDF':
+                    filename += '.pdf'
+                    artist = PDFDrawing(filename,
+                                        settings.paperwidth,
+                                        settings.paperwidth,
+                                        font_metrics)
+                else:
+                    print 'Unknown output type: '+ settings.output_type.upper()
+                    sys.exit(1)
+                    pass
+                sm = SkymapEngine(artist,font_metrics, settings.language,
+                                  lm_stars = settings.limiting_magnitude_stars)
+                sm.set_field(ra, dec, settings.fieldsize*pi/180.0/2.0)
+                caption = cat+' '+name
+                
+                if settings.caption != False:
+                    caption = settings.caption
+                    pass
+                if caption != '':
+                    sm.set_caption(caption)
+                    pass
+                sm.make_map(starcatalog, deepskycatalog,
+                            settings.extra_positions_list)
+            else:
+                print 'object not found, try appending an A or a B'
+                pass
+            pass # if source == 'allmessier'
+        pass # for source in sourcelist
+    
+    pass

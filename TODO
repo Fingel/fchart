@@ -1,0 +1,6 @@
+* Enable square maps...
+
+This requires a complete overhaul  of the layout engine. Legend should
+move below the map. Catalogs need new search functions.
+
+* Support for all 14 standard Postscript Type 1 fonts in PDF output
