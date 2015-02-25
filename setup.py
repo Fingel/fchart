@@ -26,7 +26,8 @@ attrs = {'name':'fchart',
          'data_files':[('fchart/catalogs', ['data/catalogs/index.dat',
                                             'data/catalogs/revngc.txt',
                                             'data/catalogs/revic.txt',
-                                            'data/catalogs/sac.txt']),
+                                            'data/catalogs/sac.txt',
+                                            'data/catalogs/tyc2.bin']),
                      ('fchart/font-metrics',
                       glob.glob('data/font-metrics/*.afm')),
                      ('fchart/labels',['data/label_positions.txt'])],
@@ -39,12 +40,12 @@ if not '--help' in sys.argv:
     d.parse_command_line()
     cmd_obj = d.get_command_obj('install')
     cmd_obj.finalize_options()
-    
+
     #todo: remove trailing '\'
     DATA_DIR =remove_slashes(os.path.join(cmd_obj.install_data,'fchart'))
     LIB_DIR =remove_slashes(cmd_obj.install_lib)
     SCRIPT_DIR =remove_slashes(cmd_obj.install_scripts)
-    
+
     config_out = file(os.path.join('lib','config.py'), 'w')
     config_out.write('FCHART_DATA_DIR = \''+DATA_DIR+'\'\n')
     config_out.write('FCHART_LIB_DIR = \''+LIB_DIR+'\'\n')
@@ -53,6 +54,6 @@ if not '--help' in sys.argv:
     config_out.close()
     pass
 
-    
+
 s = setup(**attrs)
 
