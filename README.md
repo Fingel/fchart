@@ -1,9 +1,12 @@
 # fchart
 Michiel Brentjens' fchart - astronomical finder charts now working with numpy and python2.7
 
+![star chart](http://s3-us-west-2.amazonaws.com/pedaldp/images/2015-02-creating-finder-charts-for-astronomy-using-fchart/m31.jpg)
+
 fchart is a set of python scripts and a command line utility to create star maps/finder charts.
 
 Install:
+
 `pip install fchart`
 
 or download and
