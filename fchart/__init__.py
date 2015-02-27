@@ -14,7 +14,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-__doc__="""
+__doc__ = """
 The modules saguaro and revngc are meant for the import of deepsky data
 
 skymap_engine contains the SkymapEngine class that draws maps of the sky,
@@ -24,12 +24,26 @@ from GraphicsInterface.
 
 The fonts module is used to compute fontmetrics.
 
-config contains information on which files are installed where.
-
 astrocalc provides coordinate conversions etc.
 """
 
 
-import astrocalc,deepsky,deepsky_object,deepsky_catalog,eps,fonts
-import graphics_interface,pdf,revngc, saguaro, skymap_engine, star_catalog
-import config
+# import astrocalc
+# import deepsky
+# import deepsky_object
+# import deepsky_catalog
+# import eps
+# import fonts
+# import graphics_interface
+# import pdf
+# import revngc
+# import saguaro
+# import skymap_engine
+# import star_catalog
+import os
+
+_ROOT = os.path.abspath(os.path.dirname(__file__))
+
+
+def get_data(path):
+    return os.path.join(_ROOT, 'data', path)

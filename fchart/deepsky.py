@@ -14,26 +14,27 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+import fchart
 from fchart.deepsky_catalog import *
 from fchart.deepsky_object import *
 from fchart.saguaro import *
 from fchart.revngc import *
-from fchart.config import *
 from astrocalc import *
 import os
 
-def get_deepsky_list(data_dir=os.path.join(FCHART_DATA_DIR, 'catalogs')):
+
+def get_deepsky_list(data_dir=os.path.join(fchart.get_data('catalogs'))):
     deeplist = []
 
     m24 = DeepskyObject()
-    m24.cat='IC'
-    m24.name='4715'
+    m24.cat ='IC'
+    m24.name ='4715'
     m24.messier = 24
     m24.type = STARS
-    m24.ra= hms2rad(18,16.9)
-    m24.dec=dms2rad(18,29,0,-1)
-    m24.mag=3.1
-    m24.rlong=95*pi/(180.0*60)
+    m24.ra = hms2rad(18,16.9)
+    m24.dec = dms2rad(18,29,0,-1)
+    m24.mag = 3.1
+    m24.rlong = 95*pi/(180.0*60)
     m24.rshort=35*pi/(180.0*60)
     m24.constellation='SGR'
     deeplist.append(m24)
@@ -71,7 +72,7 @@ def get_deepsky_list(data_dir=os.path.join(FCHART_DATA_DIR, 'catalogs')):
 
     print 'Sorting Sac...'
     saclist.sort(cmp_name)
-    
+
     ngcstart = 0
     ngcend   = 0
     icstart = 0
@@ -107,7 +108,7 @@ def get_deepsky_list(data_dir=os.path.join(FCHART_DATA_DIR, 'catalogs')):
     return deeplist
 
 
-def get_deepsky_catalog(data_dir=os.path.join(FCHART_DATA_DIR, 'catalogs')):
+def get_deepsky_catalog(data_dir=os.path.join(fchart.get_data('catalogs'))):
     l = get_deepsky_list(data_dir)
     print len(l)
     dc = DeepskyCatalog(l)
