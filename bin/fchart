@@ -29,6 +29,7 @@ import getopt
 
 
 # Local modules:
+import fchart
 from fchart.astrocalc import *
 from fchart import revngc
 from fchart import saguaro
@@ -42,14 +43,11 @@ from fchart.pdf import *
 from fchart.fonts import FontMetrics
 
 
-from fchart.config import *
-
-
 #################################################################
 
 
 def print_version():
-    print 'fchart version '+FCHART_VERSION+' (c) 2005 Michiel Brentjens'
+    print 'fchart version 0.3 (c) 2005 Michiel Brentjens'
     print """
 fchart comes with ABSOLUTELY NO WARRANTY. It is distributed under the
 GNU General Public License (GPL) version 2. For details see the LICENSE
@@ -293,8 +291,8 @@ class RuntimeSettings:
 
 if __name__ == '__main__':
 
-    data_dir    = os.path.join(FCHART_DATA_DIR,'catalogs')
-    font_metrics = FontMetrics(os.path.join(FCHART_DATA_DIR, 'font-metrics'))
+    data_dir    = os.path.join(fchart.get_data('catalogs'))
+    font_metrics = FontMetrics(os.path.join(fchart.get_data('font-metrics')))
 
     # Create default settings and parse commandline
     settings = RuntimeSettings()
