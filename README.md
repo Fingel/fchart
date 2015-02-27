@@ -4,6 +4,9 @@ Michiel Brentjens' fchart - astronomical finder charts now working with numpy an
 fchart is a set of python scripts and a command line utility to create star maps/finder charts.
 
 Install:
+`pip install fchart`
+
+or download and
 
 `python setup.py install`
 
