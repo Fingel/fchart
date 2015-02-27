@@ -1,5 +1,4 @@
 from setuptools import setup
-import glob
 
 setup(
     name='fchart',
@@ -19,6 +18,6 @@ setup(
                 'data/catalogs/revic.txt',
                 'data/catalogs/sac.txt',
                 'data/catalogs/tyc2.bin',
-                glob.glob('data/font-metrics/*.afm'),
+                'data/font-metrics/*.afm',
                 'data/label_positions.txt']},
 )
