@@ -7,9 +7,7 @@ fchart is a set of python scripts and a command line utility to create star maps
 
 Install:
 
-`pip install fchart`
-
-or download and
+Download this project and
 
 `python setup.py install`
 
